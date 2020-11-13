@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:unless="${cat.id} == 404" th:text="'Inspection of cat ' + ${id}"></title>
+    <title th:if="${cat.id} == 404" th:text="'Cat 404'"></title>
+</head>
+<body>
+<div th:if="${cat.id} == 404">
+    <p th:text="'You come upon the strangest cat you\'ve ever seen. It\'s a ' + ${cat.age} + ' year old, ' + ${cat.color} + ' colored ' + ' ' + ${cat.breed} + '.'"></p>
+    <p>It gives you a very uneasy feeling.</p>
+</div>
+<div th:unless="${cat.id} == 404">
+    <p th:text="'Upon closer inspection, you realize that the ' + ${cat.age} + '-year-old ' + ${cat.color} + ' ' + ${cat.breed} + ' you took in is even cuter than you thought.'"></p>
+    <p>So cute, in fact, that it's unbearable to look at. Careful now, each moment you spend looking at it dramatically increases your chances of cute overdose. Step away from this cute basilisk ASAP!</p>
+</div>
+<a th:href="@{/}"> Back to safety </a>
+</body>
+</html>

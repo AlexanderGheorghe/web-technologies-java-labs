@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Realization</title>
+</head>
+<body>
+<p>It suddenly hits you.</p>
+<p>The cat you thought was a <i th:text="${catDto.age}"></i>-year-old, <i th:text="${catDto.color}"></i> <i th:text="${catDto.breed}"></i> is actually... </p>
+<form action="#" th:action="@{/update/{id}(id=${catDto.id})}" th:object="${catDto}" method="post">
+    <span> a </span>
+    <input type="text" th:field="*{color}" id="color">
+    <label for="color"> colored,</label>
+    <span th:if="${#fields.hasErrors('color')}" th:errors="*{color}"></span>
+
+    <input type="text" th:field="*{breed}" id="breed">
+    <label for="breed"> breed,</label>
+    <span th:if="${#fields.hasErrors('breed')}" th:errors="*{breed}"></span>
+
+    <input type="text" th:field="*{age}" id="age">
+    <label for="age"> aged</label>
+    <span> cat.</span>
+    <span th:if="${#fields.hasErrors('age')}" th:errors="*{age}"></span>
+
+    <br>
+    <br>
+    <input type="submit" value="What a surprise!">
+</form>
+</body>
+</html>

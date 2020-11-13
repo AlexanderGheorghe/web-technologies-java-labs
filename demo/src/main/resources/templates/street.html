@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>The street</title>
+</head>
+<body>
+<p>You are strolling around the block.</p>
+<p>Out of nowhere, the cutest furball you've ever seen manifests before you...</p>
+<form action="#" th:action="@{/}" th:object="${catDto}" method="post">
+    <span>It is a </span>
+    <input type="text" th:field="*{color}" id="color">
+    <label for="color"> colored,</label>
+    <span th:if="${#fields.hasErrors('color')}" th:errors="*{color}"></span>
+
+    <input type="text" th:field="*{breed}" id="breed">
+    <label for="breed"> breed,</label>
+    <span th:if="${#fields.hasErrors('breed')}" th:errors="*{breed}"></span>
+
+    <input type="text" th:field="*{age}" id="age">
+    <label for="age"> aged</label>
+    <span> cat.</span>
+    <span th:if="${#fields.hasErrors('age')}" th:errors="*{age}"></span>
+
+    <br>
+    <br>
+    <input type="submit" value="Take it in.">
+</form>
+</body>
+</html>

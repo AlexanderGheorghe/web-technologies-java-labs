@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>The cattery :3</title>
+</head>
+<body>
+    <p>You find yourself inside a cattery.</p>
+    <p>You look around and you see...</p>
+    <p th:if="${cats.empty}">A most heart-rending dance of dust bunnies, compelling you pull your shirt over your nose.</p>
+    <p th:each="cat:${cats}"> The <i th:text="${cat.age}"></i>-year-old, <i th:text="${cat.color}"></i> <i th:text="${cat.breed}"></i> cat you swept off the street. <a th:href="@{/{id}(id=${cat.id})}"><b>Take a closer look</b></a> <a th:href="@{/review/{id}(id=${cat.id})}"><b>Something's off...</b></a> <a th:href="@{/give/{id}(id=${cat.id})}"><b>Give to a loving family</b></a> </p>
+    <a th:href="@{/street}"> Go for a walk </a>
+</body>
+</html>
