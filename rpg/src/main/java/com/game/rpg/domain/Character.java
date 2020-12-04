@@ -1,5 +1,6 @@
 package com.game.rpg.domain;
 
+import com.game.rpg.validators.RequiredIf;
 import lombok.*;
 
 import javax.validation.constraints.NotNull;
@@ -11,6 +12,7 @@ import javax.validation.constraints.Size;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
+@RequiredIf(message = "Weapon name can not be empty.")
 public class Character {
 
     @NotNull

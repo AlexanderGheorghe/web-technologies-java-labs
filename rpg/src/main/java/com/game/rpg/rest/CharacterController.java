@@ -1,5 +1,7 @@
 package com.game.rpg.rest;
 
+import com.game.rpg.exceptions.BadRequestException;
+import com.game.rpg.exceptions.EntityNotFoundException;
 import com.game.rpg.service.CharacterService;
 import com.game.rpg.dto.CharacterDto;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,11 +42,16 @@ public class CharacterController {
 
     @PutMapping(path = "/update", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<CharacterDto> update(@RequestBody CharacterDto character) {
-        return new ResponseEntity<>(characterService.update(character), characterService.update(character) != null ? HttpStatus.OK : HttpStatus.NO_CONTENT);
+        var updatedCharacter = characterService.update(character);
+        if(updatedCharacter == null)
+            throw new EntityNotFoundException("Cannot find character with id " + character.getId());
+        return new ResponseEntity<>(updatedCharacter, HttpStatus.OK);
     }
 
     @DeleteMapping(path = "/delete/{id}")
     public String delete(@PathVariable Long id) {
+        if(id < 0)
+            throw new BadRequestException("Character id can not be negative!");
         return characterService.delete(id);
     }
 }

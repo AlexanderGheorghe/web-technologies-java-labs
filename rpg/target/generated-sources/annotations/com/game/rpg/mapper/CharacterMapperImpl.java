@@ -6,7 +6,7 @@ import javax.annotation.processing.Generated;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2020-11-27T17:55:24+0200",
+    date = "2020-12-04T17:53:37+0200",
     comments = "version: 1.3.1.Final, compiler: javac, environment: Java 11.0.9 (JetBrains s.r.o.)"
 )
 public class CharacterMapperImpl implements CharacterMapper {
