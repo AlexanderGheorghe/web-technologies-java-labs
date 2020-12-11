@@ -1,6 +1,9 @@
 package com.game.rpg.repository;
 
 import com.game.rpg.domain.Weapon;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -10,73 +13,50 @@ import java.util.Optional;
 @Repository
 public class WeaponRepository {
 
-    private final List<Weapon> weaponList = new ArrayList<>();
-
-    public WeaponRepository() {
-        initWeaponList();
-    }
-
-    public Optional<Weapon> get(Long id) {
-        return weaponList.stream().filter(weapon -> weapon.getId().equals(id)).findFirst();
-    }
-
-    public List<Weapon> getAll() {
-        return weaponList;
-    }
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     public Weapon save(Weapon weapon) {
-        weaponList.add(weapon);
+        String sql = "INSERT INTO weapons VALUES(NULL, ?, ?, ?, ?)";
+        jdbcTemplate.update(sql, weapon.getName(), weapon.getName(), weapon.getDamage(), weapon.getDetails());
         return weapon;
     }
 
-    public String delete(Long id) {
-        Optional<Weapon> characterOptional = get(id);
-        if (characterOptional.isPresent()) {
-            weaponList.remove(characterOptional.get());
-            return "Removed!";
-        }
-        return "Weapon not found!";
+    public Optional<Weapon> get(Long id) {
+        String sql = "SELECT * FROM weapons WHERE id = ?";
+        RowMapper<Weapon> mapper = getWeaponRowMapper();
+        return jdbcTemplate.query(sql, mapper, id).stream().findAny();
+    }
+
+    public List<Weapon> getAll() {
+        String sql = "SELECT * FROM weapons";
+        RowMapper<Weapon> mapper = getWeaponRowMapper();
+        return jdbcTemplate.query(sql, mapper);
     }
 
     public Weapon update(Weapon weapon) {
-        Optional<Weapon> weaponOptional = get(weapon.getId());
-        if (weaponOptional.isPresent()) {
-            weaponList.remove(weaponOptional.get());
-            weaponList.add(weapon);
-            return get(weapon.getId()).get();
-        }
-        return null;
+        String sql = "UPDATE weapons SET name = ?, type = ?, damage = ?, details = ? WHERE id = ?";
+        jdbcTemplate.update(sql, weapon.getName(), weapon.getType(), weapon.getDamage(), weapon.getDetails());
+        return get(weapon.getId()).get();
     }
 
-    private void initWeaponList() {
-        weaponList.add(Weapon.builder()
-                .id(1L)
-                .name("Railgun of total annihilation")
-                .damage(99)
-                .type("Piercing")
-                .details("Obliterates everything!")
-                .build());
+    public String delete(Long id) {
+        String sql = "DELETE FROM weapons WHERE id = ?";
+        jdbcTemplate.update(sql, id);
+        return "";
+    }
 
-        weaponList.add(Weapon.builder()
-                .id(2L)
-                .name("Staff of healing")
-                .damage(-25)
-                .type("Magical")
-                .details("Big heal.")
-                .build());
-        weaponList.add(Weapon.builder()
-                .id(3L)
-                .name("Wooden Sword")
-                .damage(1)
-                .type("Melee")
-                .details("Not really a weapon.")
-                .build());
+    private RowMapper<Weapon> getWeaponRowMapper() {
+        return (resultSet, i) -> new Weapon(
+                resultSet.getLong("id"),
+                resultSet.getString("name"),
+                resultSet.getString("type"),
+                resultSet.getInt("damage"),
+                resultSet.getString("details")
+        );
     }
 
     public boolean weaponExists(Weapon weapon){
-        for (var w : weaponList)
-            if(w.equals(weapon))
-                return true;
-        return false;
+        return get(weapon.getId()).isPresent();
     }
 }

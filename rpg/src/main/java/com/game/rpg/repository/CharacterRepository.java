@@ -3,6 +3,8 @@ package com.game.rpg.repository;
 import com.game.rpg.domain.Character;
 import com.game.rpg.domain.Weapon;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -12,80 +14,47 @@ import java.util.Optional;
 @Repository
 public class CharacterRepository {
 
-    private final List<Character> characterList = new ArrayList<>();
-    private final WeaponRepository weaponRepository;
-
     @Autowired
-    public CharacterRepository(WeaponRepository weaponRepository) {
-        this.weaponRepository = weaponRepository;
-        initCharacterList();
-    }
-
-    public Optional<Character> get(Long id) {
-        return characterList.stream().filter(character -> character.getId().equals(id)).findFirst();
-    }
-
-    public List<Character> getAll() {
-        return characterList;
-    }
-
-    private void addWeaponIfMissing(Weapon weapon) {
-        if(!weaponRepository.weaponExists(weapon))
-            weaponRepository.save(weapon);
-    }
+    private JdbcTemplate jdbcTemplate;
 
     public Character save(Character character) {
-        addWeaponIfMissing(character.getWeapon());
-        characterList.add(character);
+        String sql = "INSERT INTO characters VALUES(NULL, ?, ?, ?, ?, ?)";
+        jdbcTemplate.update(sql, character.getName(), character.getWeapon(), character.getType(), character.getLevel(), character.getStory());
         return character;
     }
 
-    public String delete(Long id) {
-        Optional<Character> characterOptional = get(id);
-        if (characterOptional.isPresent()) {
-            characterList.remove(characterOptional.get());
-            return "Removed!";
-        }
-        return "Character not found!";
+    public Optional<Character> get(Long id) {
+        String sql = "SELECT * FROM characters WHERE id = ?";
+        RowMapper<Character> mapper = getCharacterRowMapper();
+        return jdbcTemplate.query(sql, mapper, id).stream().findAny();
+    }
 
+    public List<Character> getAll() {
+        String sql = "SELECT * FROM characters";
+        RowMapper<Character> mapper = getCharacterRowMapper();
+        return jdbcTemplate.query(sql, mapper);
     }
 
     public Character update(Character character) {
-        Optional<Character> characterOptional = get(character.getId());
-        if (characterOptional.isPresent()) {
-            characterList.remove(characterOptional.get());
-            addWeaponIfMissing(character.getWeapon());
-            characterList.add(character);
-            return get(character.getId()).get();
-        }
-        return null;
+        String sql = "UPDATE characters SET name = ?, weapon = ?, type = ?, level = ?, story = ? WHERE id = ?";
+        jdbcTemplate.update(sql, character.getName(), character.getWeapon(), character.getType(), character.getLevel(), character.getStory());
+        return get(character.getId()).get();
     }
 
-    private void initCharacterList() {
-        characterList.add(Character.builder()
-                .id(1L)
-                .name("Wulfgar the Cruel")
-                .weapon(weaponRepository.get(1L).get())
-                .level(57)
-                .type("Orc")
-                .story("Wulfgar smash!")
-                .build());
+    public String delete(Long id) {
+        String sql = "DELETE FROM characters WHERE id = ?";
+        jdbcTemplate.update(sql, id);
+        return "";
+    }
 
-        characterList.add(Character.builder()
-                .id(2L)
-                .name("Pontius the wise")
-                .weapon(weaponRepository.get(2L).get())
-                .level(77)
-                .type("Owl")
-                .story("Whoo?")
-                .build());
-        characterList.add(Character.builder()
-                .id(3L)
-                .name("Amorphous blob")
-                .weapon(weaponRepository.get(3L).get())
-                .level(96)
-                .type("Monster")
-                .story("The thing that ate Cincinnati, Cleveland, or whatever.")
-                .build());
+    private RowMapper<Character> getCharacterRowMapper() {
+        return (resultSet, i) -> new Character(
+                resultSet.getLong("id"),
+                resultSet.getString("name"),
+                (Weapon) resultSet.getObject("weapon"),
+                resultSet.getString("type"),
+                resultSet.getInt("level"),
+                resultSet.getString("story")
+        );
     }
 }
